@@ -1,0 +1,19 @@
+# Use PyMOL to align sample_0.pdb to GlpG_AF2_lipid_packing_renumbered.pdb (naming 'sample_0_aligned.pdb')
+
+# Fit all other models to this aligned model (only core atoms - CA 93-275):
+echo -e 11 \ 0 | gmx trjconv -f samples.xtc -s sample_0_aligned.pdb -n dN_CA -o samples_aligned.xtc -fit rot+trans
+
+# In how many frames of samples_aligned.xtc are CA atoms of residues 0-80 in the plane of the lipid bilayer (12.1 A > z > -12.1 A)?
+gmx select -s sample_0_aligned.pdb -f samples_aligned.xtc -select 'group "Res0_80_CA" and z > -1.21 and z < 1.21' -os in_bilayer_plane_count_CA.xvg -n soluble.ndx
+
+# NB - .xvg lists number of molecules for each frame within the plane. The trajectory number is numbered 0-999, with gaps for missing samples. The sample number can be identified by the row number as follows:
+# s = n-1 (where s is sample number and n is row number)
+
+# Count number of frames where any atoms are in the plane:
+awk '!/^[#@]/ {if ($2 > 0) c++} END{print c}' in_bilayer_plane_count.xvg
+
+# Repeat 3-4, but allowing for 0.5 nm into the plane of the lipid bilayer:
+gmx select -s sample_0_aligned.pdb -f samples_aligned.xtc -select 'group "Res0_80_CA" and z > -0.71 and z < 0.71' -os in_bilayer_plane_count_CA_71.xvg -n soluble.ndx
+awk '!/^[#@]/ {if ($2 > 0) c++} END{print c}' in_bilayer_plane_count_CA_71.xvg
+
+
