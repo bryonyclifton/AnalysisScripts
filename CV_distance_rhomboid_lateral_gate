@@ -1,0 +1,5 @@
+# In Gromacs, after creating an index ("LG_groups", using same atoms as for steered MD collective variable, or CV), create a .xvg file with the lateral gate distance in trajectory files:
+for i in {1..5} ; do gmx distance -s md_1.tpr -f md_$i.xtc -select 'com of group "TM2" plus com of group "TM5"' -oxyz distance_xyz_$i.xvg -oall distance_all_$i.xvg -n LG_groups.ndx ; done
+
+# To obtain the CV distance
+for i in {1..5} ; do awk '{ print $1/1000 , sqrt($2^2+$3^2)}' distance_xyz_$i.xvg > R1_CV_dist_md_$i.xvg ; done
